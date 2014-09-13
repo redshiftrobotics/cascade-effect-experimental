@@ -1,3 +1,4 @@
+
 void setupNXTpin()
 {
 
@@ -28,7 +29,33 @@ void sendNXTdata(int numberToSend)
   }
 }
 
-void interruptFunction()
+
+void setup()
 {
-  //what should be done when the interrupt is triggered goes here
+  setupNXTpin();
+  Serial.begin(38400);
 }
+
+int counter = 0;
+
+void loop()
+{
+  counter = counter + 1;
+  counter = counter%512;
+  sendNXTdata(counter);
+  Serial.println(counter);
+  delay(1000);
+}
+
+int mapNineBitToDegrees(int nineBitNum)
+{
+	float Degrees = 0;
+	float NineBitNum = 0;
+	float slope = 360.0/512.0;
+
+	NineBitNum = (float)(nineBitNum);
+	Degrees=slope*NineBitNum;
+	Degrees=Degrees - 180.0;
+	return (int)(Degrees);
+}
+

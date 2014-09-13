@@ -1,5 +1,3 @@
-#include <LiquidCrystal.h>
-
 /***************************************************************************************************************
 * Razor AHRS Firmware v1.4.2
 * 9 Degree of Measurement Attitude and Heading Reference System
@@ -191,7 +189,7 @@ int output_mode = OUTPUT__MODE_ANGLES;
 int output_format = OUTPUT__FORMAT_TEXT;
 
 // Select if serial continuous streaming output is enabled per default on startup.
-#define OUTPUT__STARTUP_STREAM_ON false  // true or false
+#define OUTPUT__STARTUP_STREAM_ON true  // true or false
 
 // If set true, an error message will be output if we fail to read sensor data.
 // Message format: "!ERR: reading <sensor>", followed by "\r\n".
@@ -233,11 +231,9 @@ boolean output_errors = false;  // true or false
 
 // Magnetometer (extended calibration mode)
 // Uncommend to use extended magnetometer calibration (compensates hard & soft iron errors)
-//#define CALIBRATION__MAGN_USE_EXTENDED true
-//const float magn_ellipsoid_center[3] = {0, 0, 0};
-//const float magn_ellipsoid_transform[3][3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-const float magn_ellipsoid_center[3] = {44.0805, 84.8388, 4.76567};
-const float magn_ellipsoid_transform[3][3] = {{0.772262, -0.00760499, -0.0272766}, {-0.00760499, 0.926243, 0.0323994}, {-0.0272766, 0.0323994, 0.981637}};
+#define CALIBRATION__MAGN_USE_EXTENDED true
+const float magn_ellipsoid_center[3] = {99.7279, 1555.19, -283.520};
+const float magn_ellipsoid_transform[3][3] = {{0.750534, -0.00308612, -0.0420513}, {-0.00308612, 0.332151, 0.0120860}, {-0.0420513, 0.0120860, 0.992674}};
 
 
 // Gyroscope
@@ -338,6 +334,7 @@ const float magn_ellipsoid_transform[3][3] = {{0.902, -0.00354, 0.000636}, {-0.0
 #define Ki_YAW 0.00002f
 
 // Stuff
+#define STATUS_LED_PIN 13  // Pin number of status LED
 #define GRAVITY 256.0f // "1G reference" used for DCM filter and accelerometer calibration
 #define TO_RAD(x) (x * 0.01745329252)  // *pi/180
 #define TO_DEG(x) (x * 57.2957795131)  // *180/pi
@@ -475,11 +472,13 @@ void check_reset_calibration_session()
 void turn_output_stream_on()
 {
   output_stream_on = true;
+  digitalWrite(STATUS_LED_PIN, HIGH);
 }
 
 void turn_output_stream_off()
 {
   output_stream_on = false;
+  digitalWrite(STATUS_LED_PIN, LOW);
 }
 
 // Blocks until another byte is available on serial port
@@ -492,9 +491,12 @@ char readChar()
 void setup()
 {
   // Init serial output
-  //Serial.begin(OUTPUT__BAUD_RATE);
-  setupNXTpin();
+  Serial.begin(OUTPUT__BAUD_RATE);
   
+  // Init status LED
+  pinMode (STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, LOW);
+
   // Init sensors
   delay(50);  // Give sensors enough time to start
   I2C_Init();
@@ -518,10 +520,6 @@ void setup()
 void loop()
 {
   // Read incoming control messages
-  
-  /////////////////////////////////////////////////////////////////////////////////////////////////////TURNING THESE SERIAL FUNCTIONS OFF FOR NOW//////////////////////////////
-  
-  /*
   if (Serial.available() >= 2)
   {
     if (Serial.read() == '#') // Start of new control message
@@ -603,7 +601,7 @@ void loop()
             Serial.println(num_gyro_errors);
           }
         }
-      }  
+      }
 #if OUTPUT__HAS_RN_BLUETOOTH == true
       // Read messages from bluetooth module
       // For this to work, the connect/disconnect message prefix of the module has to be set to "#".
@@ -615,11 +613,8 @@ void loop()
     }
     else
     { } // Skip character
-  }  */
-  
-  ///////////////////////////////////////////////////////////////////END OF COMMENTED OUT AREA!!!/////////////////////////////////////////////////////
-  
-  
+  }
+
   // Time to read the sensors again?
   if((millis() - timestamp) >= OUTPUT__DATA_INTERVAL)
   {
@@ -632,18 +627,13 @@ void loop()
     // Update sensor readings
     read_sensors();
 
-
-///////////////////////////////////REMOVING CALIBRATION OUTPUT OPTIONS FROM HERE////////////////////////////////////////////////////////////////////
-    /*
     if (output_mode == OUTPUT__MODE_CALIBRATE_SENSORS)  // We're in calibration mode
     {
       check_reset_calibration_session();  // Check if this session needs a reset
       if (output_stream_on || output_single_on) output_calibration(curr_calibration_sensor);
     }
     else if (output_mode == OUTPUT__MODE_ANGLES)  // Output angles
-    {  */
-    
-///////////////////////////////////////////TO HERE////////////////////////////////////////////////////////////////////////////////////////////////////    
+    {
       // Apply sensor calibration
       compensate_sensor_errors();
     
@@ -653,21 +643,25 @@ void loop()
       Normalize();
       Drift_correction();
       Euler_angles();
-      sendNXTdata(map(TO_DEG(roll), -180, 180, 0, 512));
       
-      
-   //////////////////////////////////////REMOVING FROM HERE//////////////////////////////////////////////////
-  /*  
-   }
+      if (output_stream_on || output_single_on) output_angles();
+    }
     else  // Output sensor values
     {      
-      //if (output_stream_on || output_single_on) output_sensors();
+      if (output_stream_on || output_single_on) output_sensors();
     }
     
     output_single_on = false;
+    
+#if DEBUG__PRINT_LOOP_TIME == true
+    Serial.print("loop time (ms) = ");
+    Serial.println(millis() - timestamp);
+#endif
   }
-  */
-    /////////////////////////////////TO HERE  
-
-}
+#if DEBUG__PRINT_LOOP_TIME == true
+  else
+  {
+    Serial.println("waiting...");
+  }
+#endif
 }

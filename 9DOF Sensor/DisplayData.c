@@ -19,7 +19,7 @@
 
 #include "drivers/hitechnic-protoboard.h"
 
-int mapNineBitToDegrees(int nineBitNum)
+int RawReadingToDegrees(int nineBitNum)
 {
 	float Degrees = 0;
 	float NineBitNum = 0;
@@ -81,7 +81,8 @@ task main()
 	  RawReading += (DigitalPins&0x02) << 1;
 	  RawReading += (DigitalPins&0x04) >> 1;
 	  RawReading += (DigitalPins&0x08) >> 3;
-	  nxtDisplayBigTextLine(6, "%d", mapNineBitToDegrees(RawReading));
+
+	  nxtDisplayBigTextLine(6, "%d", RawReadingToDegrees(RawReading));
 
 	  //let other threads do shit
 	  wait1Msec(50);

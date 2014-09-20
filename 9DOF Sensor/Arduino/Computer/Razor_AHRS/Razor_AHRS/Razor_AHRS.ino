@@ -215,10 +215,8 @@ boolean output_errors = false;  // true or false
 // "accel x,y,z (min/max) = X_MIN/X_MAX  Y_MIN/Y_MAX  Z_MIN/Z_MAX"
 #define ACCEL_X_MIN ((float) -287)
 #define ACCEL_X_MAX ((float) 266)
-
 #define ACCEL_Y_MIN ((float) -214)
 #define ACCEL_Y_MAX ((float) 286)
-
 #define ACCEL_Z_MIN ((float) -306)
 #define ACCEL_Z_MAX ((float) 257)
 

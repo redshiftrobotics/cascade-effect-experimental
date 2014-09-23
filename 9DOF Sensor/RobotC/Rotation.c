@@ -4,7 +4,7 @@ int RawReadingToDegrees(int NineBitNumber)
 {
 	float Slope = 360.0 / 512.0;
 	float Degrees = Slope * (float)NineBitNumber - 180.0;
-	return (int)(Degrees);
+	return (int)(Degrees) + 180;
 }
 
 //checks if the sensor is connected to the robot
@@ -33,7 +33,7 @@ float Rotation_Degrees()
 
 		if (AnalogPins > 512)
 		{
-			RawReading += (1 << (4 + (4 - i));
+			RawReading += (1 << (4 + (4 - i)));
 		}
 	}
 

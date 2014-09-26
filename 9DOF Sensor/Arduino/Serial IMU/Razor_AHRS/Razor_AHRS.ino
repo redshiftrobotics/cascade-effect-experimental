@@ -521,6 +521,8 @@ void setup()
 #endif
 }
 
+float StartTime = millis();
+
 // Main loop
 void loop()
 {
@@ -631,6 +633,7 @@ void loop()
 
     // Update sensor readings
     read_sensors();
+    Serial.print((180 - gyro[2]) * 10000 / millis());
 
     if (output_mode == OUTPUT__MODE_CALIBRATE_SENSORS)  // We're in calibration mode
     {

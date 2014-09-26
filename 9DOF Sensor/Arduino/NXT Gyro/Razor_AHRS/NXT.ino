@@ -1,3 +1,4 @@
+//sensor version
 #define VERSION1
 
 #ifdef VERSION1

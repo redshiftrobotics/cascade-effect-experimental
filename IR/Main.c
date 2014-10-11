@@ -1,10 +1,37 @@
 #pragma config(Sensor, S1, IROne, sensorI2CCustom)
 #pragma config(Sensor, S2, IRTwo, sensorI2CCustom)
+#pragma config(Sensor, S3, Motor, sensorI2CCustom)
 
 #include "IR.c"
+#include "Motors.h"
+
+
+const int Threashold = 25;
+
+void MoveStraight()
+{
+	nxtDisplayString(2, "Straight");
+	Motors_SetSpeed(S3, 1, 2, -10);
+	Motors_SetSpeed(S3, 1, 1, 10);
+}
+
+void MoveLeft()
+{
+	nxtDisplayString(2, "Left");
+	Motors_SetSpeed(S3, 1, 2, 10);
+	Motors_SetSpeed(S3, 1, 1, -5);
+}
+
+void MoveRight()
+{
+	nxtDisplayString(2, "Right");
+	Motors_SetSpeed(S3, 1, 2, 5);
+	Motors_SetSpeed(S3, 1, 1, -10);
+}
 
 task main()
 {
+
 	while(true)
 	{
 		//wait
@@ -15,39 +42,81 @@ task main()
 
 		//write updates varaibles to the display
 		eraseDisplay();
-		nxtDisplayString(1, "1B: %i", IR_OneValue.B);
-		nxtDisplayString(2, "1C: %i", IR_OneValue.C);
-		nxtDisplayString(3, "1D: %i", IR_OneValue.D);
-		nxtDisplayString(4, "2B: %i", IR_TwoValue.B);
-		nxtDisplayString(5, "2C: %i", IR_TwoValue.C);
-		nxtDisplayString(6, "2D: %i", IR_TwoValue.D);
+		//nxtDisplayString(1, "1B: %i", IR_LeftValue.B);
+		//nxtDisplayString(2, "1C: %i", IR_LeftValue.C);
+		//nxtDisplayString(3, "1D: %i", IR_LeftValue.D);
+		//nxtDisplayString(4, "2B: %i", IR_RightValue.B);
+		//nxtDisplayString(5, "2C: %i", IR_RightValue.C);
+		//nxtDisplayString(6, "2D: %i", IR_RightValue.D);
 
 		//write to debug stream
-		writeDebugStream("%i, ", IR_OneValue.B);
-		writeDebugStream("%i, ", IR_OneValue.C);
-		writeDebugStream("%i, ", IR_OneValue.D);
-		writeDebugStream("%i, ", IR_TwoValue.B);
-		writeDebugStream("%i, ", IR_TwoValue.C);
-		writeDebugStreamLine("%i", IR_TwoValue.D);
+		writeDebugStream("%i, ", IR_LeftValue.B);
+		writeDebugStream("%i, ", IR_LeftValue.C);
+		writeDebugStream("%i, ", IR_LeftValue.D);
+		writeDebugStream("%i, ", IR_RightValue.B);
+		writeDebugStream("%i, ", IR_RightValue.C);
+		writeDebugStreamLine("%i", IR_RightValue.D);
 
-		//does computation
+		//does distance computation
 
 
-		if(IR_OneValue.C > Threashold && IR_OneValue.D > Threashold && IR_TwoValue.B > Threashold && IR_TwoValue.C > Threashold)
+		//go straight
+		if(IR_LeftValue.C > Threashold && IR_RightValue.C > Threashold && IR_LeftValue.B < Threashold && IR_LeftValue.D < Threashold && IR_RightValue.B < Threashold && IR_RightValue.D < Threashold)
 		{
-			nxtDisplayString(1, "Medium");
+			MoveStraight();
 		}
-		else if(IR_OneValue.C > Threashold && IR_TwoValue.C > Threashold && IR_OneValue.D < Threashold && IR_TwoValue.B < Threashold)
+		else
 		{
-			nxtDisplayString(1, "Long");
-		}
-		else if(IR_OneValue.D > Threashold && IR_TwoValue.B > Threashold && IR_OneValue.C < Threashold && IR_TwoValue.C < Threashold)
-		{
-			nxtDisplayString(1, "Short");
-		}
+			int Right = 0;
+			int Left = 0;
 
-		nxtDisplayString(6, "Left: %i", IR_OneDegree());
-		nxtDisplayString(7, "Right: %i", IR_TwoDegree());
+			//go left
+			if(IR_LeftValue.B > Threashold)
+			{
+				Left++;
+			}
 
+			if(IR_LeftValue.C < Threashold && IR_RightValue > Threashold)
+			{
+				Left++;
+			}
+
+			if(IR_RightValue.B > Threashold)
+			{
+				Left++;
+			}
+
+			//go right
+			if(IR_RightValue.D > Threashold)
+			{
+				Right++;
+			}
+
+			if(IR_LeftValue.D > Threashold)
+			{
+				Right++;
+			}
+
+			if(IR_RightValue.C < Threashold && IR_LeftValue > Threashold)
+			{
+				Right++;
+			}
+
+			nxtDisplayString(5, "%i", Left);
+			nxtDisplayString(6, "%i", Right);
+
+			if(Left > Right)
+			{
+				MoveLeft();
+			}
+			else if(Right > Left)
+			{
+				MoveRight();
+			}
+			else
+			{
+				MoveStraight();
+			}
+		}
 	}
 }

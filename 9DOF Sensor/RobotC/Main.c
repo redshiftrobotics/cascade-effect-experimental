@@ -10,9 +10,25 @@ void Move(int SpeedLeft, int SpeedRight)
 	Motors_SetSpeed(S1, 1, 2, -SpeedLeft);
 }
 
+int DistanceOff(int Target, int Current)
+{
+	int Direction = (Target - Current) / abs(Target - Current);
+
+	//rotate in the other direction
+	if(abs(Target - Current) > 180)
+	{
+		return -Direction * (360 - abs(Target - Current));
+	}
+	else
+	{
+		return Direction * abs(Target - Current);
+	}
+}
+
 task main()
 {
-	int TargetDegree = 180;
+	int TargetDegree = Rotation_Degrees();
+
 
 	while(true)
 	{
@@ -25,13 +41,13 @@ task main()
 		nxtDisplayString(1, "Working: %i", Connected);
 		nxtDisplayString(2, "Degree: %i", Degree);
 
-		writeDebugStreamLine("%i", Degree);
+		//move the fucking robot!
+		int MotionConstant = DistanceOff(TargetDegree, Degree);
+		MotionConstant = (int)(MotionConstant / 2);
 
-		//move
-		int Error = (Degree - TargetDegree) / 7.2;
-		nxtDisplayString(3, "Error: %i", Error);
-		Move(10, -10);
+		Move(50 + MotionConstant, 50 - MotionConstant);
 
+		nxtDisplayString(3, "Motion C: %i", MotionConstant);
 		//sleep
 		wait1Msec(50);
 	}

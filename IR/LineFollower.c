@@ -27,7 +27,7 @@ void MoveStraight()
 
 task main()
 {
-
+	int Distance = 3;
 
 	while(true)
 	{
@@ -39,30 +39,43 @@ task main()
 		{
 			nxtDisplayString(1, "Medium");
 			writeDebugStreamLine("Medium");
+			Distance = 2;
 		}
 		else if(IR_LeftValue.C > Threashold && IR_RightValue.C > Threashold && IR_LeftValue.D < Threashold && IR_RightValue.B < Threashold)
 		{
 			nxtDisplayString(1, "Long");
 			writeDebugStreamLine("Long");
+			Distance = 3;
 		}
 		else if(IR_LeftValue.D > Threashold && IR_RightValue.B > Threashold && IR_LeftValue.C < Threashold && IR_RightValue.C < Threashold)
 		{
 			nxtDisplayString(1, "Short");
 			writeDebugStreamLine("Short");
 
+			Distance = 1;
+		}
+
+		//does the line following
+		if(Distance == 1)
+		{
 			while(true)
 			{
 				Motors_SetSpeed(S3, 1, 2, 0);
 				Motors_SetSpeed(S3, 1, 1, 0);
 			}
 		}
-
-		//does the line following
-		if(IR_LeftValue.C > Threashold && IR_LeftValue.D > Threashold)
+		else if(IR_LeftValue.C > Threashold && IR_LeftValue.D > Threashold)
 		{
 			//move straight
 			writeDebugStreamLine("Straight");
-			MoveStraight();
+			if(Distance == 3)
+			{
+				MoveRight();
+			}
+			else
+			{
+				MoveStraight();
+			}
 		}
 		else if(IR_LeftValue.C > Threashold)
 		{

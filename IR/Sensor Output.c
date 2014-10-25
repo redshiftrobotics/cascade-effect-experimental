@@ -5,30 +5,58 @@
 #include "IR.c"
 #include "Motors.h"
 
-const int Threashold = 25;
+const int Threashold = 10;
+const int MinorThreashold = 5;
 
+void SetPower(int Left, int Right)
+{
+	Motors_SetSpeed(S3, 1, 2, -Right);
+	Motors_SetSpeed(S3, 1, 1, Left);
+}
+
+int CheckPosition()
+{
+	IR_Update();
+
+	if((IR_RightValue.D < (.25) * IR_RightValue.C || IR_RightValue.D < (.25) * IR_RightValue.B) && IR_RightValue.C < IR_LeftValue.C * (.6))
+	{
+		return 2;
+	}
+	else if(IR_LeftValue.C * (.6) < IR_RightValue.C && IR_RightValue.C * (.6) < IR_LeftValue.C)
+	{
+		return 3;
+	}
+	else
+	{
+		return 1;
+	}
+}
 
 task main()
 {
-	while(true)
-	{
+	//IR_Update();
+
+	//int test = 13;
+	//writeDebugStreamLine("");
+	//writeDebugStreamLine("%i", IR_RightValue.C);
+	//writeDebugStreamLine("%i", (.25) * IR_RightValue.C);
+	writeDebugStreamLine("Position Number: %i", CheckPosition());
+
 		//update IR
 		IR_Update();
 
-		writeDebugStream("Left::: ");
-		writeDebugStream("A: %i, ", IR_RightValue.A);
-		writeDebugStream("B: %i, ", IR_RightValue.B);
-		writeDebugStream("C: %i, ", IR_RightValue.C);
-		writeDebugStream("D: %i, ", IR_RightValue.D);
-		writeDebugStreamLine("E: %i", IR_RightValue.E);
 
-		writeDebugStream("Right::: ");
-		writeDebugStream("A: %i, ", IR_LeftValue.A);
-		writeDebugStream("B: %i, ", IR_LeftValue.B);
-		writeDebugStream("C: %i, ", IR_LeftValue.C);
-		writeDebugStream("D: %i, ", IR_LeftValue.D);
-		writeDebugStreamLine("E: %i", IR_LeftValue.E);
+		writeDebugStream("%i, ", IR_LeftValue.B);
+		writeDebugStream("%i, ", IR_LeftValue.C);
+		writeDebugStream("%i, ", IR_LeftValue.D);
 
-		writeDebugStreamLine("Total: %i", IR_LeftValue.C + IR_RightValue.C);
-	}
+		writeDebugStream("%i, ", IR_RightValue.B);
+		writeDebugStream("%i, ", IR_RightValue.C);
+		writeDebugStreamLine("%i", IR_RightValue.D);
+
+
+		//SetPower(10, -10);
+		//writeDebugStreamLine("%i", Distance());
+
+		//writeDebugStreamLine("%i", IR_LeftValue.C + IR_RightValue.C + IR_RightValue.B + IR_LeftValue.B + IR_RightValue.D + IR_LeftValue.D);
 }

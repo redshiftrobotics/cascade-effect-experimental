@@ -1,126 +1,105 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-//------------------------------------------------------------------------------
-//
-// PushBotManual
-//
-/**
- * Extends the PushBotTelemetry and PushBotHardware classes to provide a basic
- * manual operational mode for the Push Bot.
- *
- * @author SSI Robotics
- * @version 2015-08-01-06-01
- */
-public class PushBotManual extends PushBotTelemetry
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.util.Range;
+
+public class MattsAmazingOpmode extends OpMode
 
 {
-    //--------------------------------------------------------------------------
-    //
-    // PushBotManual
-    //
-    //--------
-    // Constructs the class.
-    //
-    // The system calls this member when the class is instantiated.
-    //--------
-    public PushBotManual ()
+    //declare motor controller
+    private DcMotorController v_dc_motor_controller_drive;
+
+    //declare variables for left and right motors
+    private DcMotor v_motor_left_drive;
+    final int v_channel_left_drive = 1;
+
+    private DcMotor v_motor_right_drive;
+    final int v_channel_right_drive = 2;
+
+    @Override public void init ()
 
     {
-        //
-        // Initialize base classes.
-        //
-        // All via self-construction.
+        //this is where hardware interfaces are initialized and bound
+        v_dc_motor_controller_drive = hardwareMap.dcMotorController.get("drive_controller");
 
-        //
-        // Initialize class members.
-        //
-        // All via self-construction.
+        v_motor_left_drive = hardwareMap.dcMotor.get ("left_drive");
 
-    } // PushBotManual::PushBotManual
+        v_motor_right_drive = hardwareMap.dcMotor.get ("right_drive");
 
-    //--------------------------------------------------------------------------
-    //
-    // loop
-    //
-    //--------
-    // Initializes the class.
-    //
-    // The system calls this member repeatedly while the OpMode is running.
-    //--------
+
+    }
+
+    @Override public void start ()
+
+    {
+       //Actions in this method will execute before the 'Start' button is pressed on the controller, its the equivalent of the setup loop in Arduino programming.
+
+    }
+
+    public MattsAmazingOpmode()
+
+    {
+
+    }
+
     @Override public void loop ()
 
     {
-        //----------------------------------------------------------------------
+        //Again the equivalent in Arduino programming is the loop()... This will continue to execute (in this case in a linear/synchronous fashion) until stop() is called (at least I think thats how you terminate it).
+
+
+        //This sets the drive power of both motors to the first gamepads joysticks.
+        v_motor_left_drive.setPower (scale_motor_power(-gamepad1.left_stick_y));
+        v_motor_right_drive.setPower (scale_motor_power(-gamepad1.right_stick_y));
+
+
+    }
+
+    double scale_motor_power (double p_power)
+    {
         //
-        // DC Motors
+        // Assume no scaling.
         //
-        // Obtain the current values of the joystick controllers.
-        //
-        // Note that x and y equal -1 when the joystick is pushed all of the way
-        // forward (i.e. away from the human holder's body).
-        //
-        // The clip method guarantees the value never exceeds the range +-1.
-        //
-        // The DC motors are scaled to make it easier to control them at slower
-        // speeds.
-        //
-        // The setPower methods write the motor power values to the DcMotor
-        // class, but the power levels aren't applied until this method ends.
-        //
+        double l_scale = 0.0f;
 
         //
-        // Manage the drive wheel motors.
+        // Ensure the values are legal.
         //
-        float l_gp1_left_stick_y = -gamepad1.left_stick_y;
-        float l_left_drive_power
-            = (float)scale_motor_power (l_gp1_left_stick_y);
+        double l_power = Range.clip (p_power, -1, 1);
 
-        float l_gp1_right_stick_y = -gamepad1.right_stick_y;
-        float l_right_drive_power
-            = (float)scale_motor_power (l_gp1_right_stick_y);
+        double[] l_array =
+                { 0.00, 0.05, 0.09, 0.10, 0.12
+                        , 0.15, 0.18, 0.24, 0.30, 0.36
+                        , 0.43, 0.50, 0.60, 0.72, 0.85
+                        , 1.00, 1.00
+                };
 
-        set_drive_power (l_left_drive_power, l_right_drive_power);
-
         //
-        // Manage the arm motor.
+        // Get the corresponding index for the specified argument/parameter.
         //
-        float l_gp2_left_stick_y = -gamepad2.left_stick_y;
-        float l_left_arm_power = (float)scale_motor_power (l_gp2_left_stick_y);
-        v_motor_left_arm.setPower (l_left_arm_power);
-
-        //----------------------------------------------------------------------
-        //
-        // Servo Motors
-        //
-        // Obtain the current values of the gamepad 'x' and 'b' buttons.
-        //
-        // Note that x and b buttons have boolean values of true and false.
-        //
-        // The clip method guarantees the value never exceeds the allowable range of
-        // [0,1].
-        //
-        // The setPosition methods write the motor power values to the Servo
-        // class, but the positions aren't applied until this method ends.
-        //
-        if (gamepad2.x)
+        int l_index = (int) (l_power * 16.0);
+        if (l_index < 0)
         {
-            m_hand_position (a_hand_position () + 0.05);
+            l_index = -l_index;
         }
-        else if (gamepad2.b)
+        else if (l_index > 16)
         {
-            m_hand_position (a_hand_position () - 0.05);
+            l_index = 16;
         }
 
-        //
-        // Send telemetry data to the driver station.
-        //
-        update_telemetry (); // Update common telemetry
-        telemetry.addData ("10", "GP1 Left: " + l_gp1_left_stick_y);
-        telemetry.addData ("11", "GP1 Right: " + l_gp1_right_stick_y);
-        telemetry.addData ("12", "GP2 Left: " + l_gp2_left_stick_y);
-        telemetry.addData ("13", "GP2 X: " + gamepad2.x);
-        telemetry.addData ("14", "GP2 Y: " + gamepad2.b);
+        if (l_power < 0)
+        {
+            l_scale = -l_array[l_index];
+        }
+        else
+        {
+            l_scale = l_array[l_index];
+        }
 
-    } // PushBotManual::loop
+        return l_scale;
 
-} // PushBotManual
+    } // PushBotManual::scale_motor_power
+
+}

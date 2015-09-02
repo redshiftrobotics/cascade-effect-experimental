@@ -46,8 +46,12 @@ public class MattsAmazingOpmode extends OpMode
     @Override public void loop ()
 
     {
-        v_motor_left_drive.setPower (1.00);
-        v_motor_right_drive.setPower (1.00);
+        //Again the equivalent in Arduino programming is the loop()... This will continue to execute (in this case in a linear/synchronous fashion) until stop() is called (at least I think thats how you terminate it).
+
+
+        //This sets the drive power of both motors to the first gamepads joysticks.
+        v_motor_left_drive.setPower (-gamepad1.left_stick_y);
+        v_motor_right_drive.setPower (-gamepad1.right_stick_y);
 
     }
 

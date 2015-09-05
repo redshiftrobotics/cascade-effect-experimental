@@ -1,10 +1,14 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.app.Activity;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 public class MattsAmazingOpmode extends OpMode
@@ -13,6 +17,7 @@ public class MattsAmazingOpmode extends OpMode
     //declare motor controller
     private DcMotorController v_dc_motor_controller_drive;
     private ServoController servocontroller;
+    private DeviceInterfaceModule core;
 
     //declare variables for left and right motors
     private DcMotor v_motor_left_drive;
@@ -22,8 +27,7 @@ public class MattsAmazingOpmode extends OpMode
     final int v_channel_right_drive = 2; //these aren't used right now but they would be for encoders
 
     private Servo hand1;
-
-
+    TouchSensor button;
     @Override public void init ()
 
     {
@@ -34,9 +38,17 @@ public class MattsAmazingOpmode extends OpMode
 
         v_motor_right_drive = hardwareMap.dcMotor.get ("right_drive");
 
-        servocontroller = hardwareMap.servoController.get("servo_controller");
+        //servocontroller = hardwareMap.servoController.get("servo_controller");
 
-        hand1 = hardwareMap.servo.get("hand1");
+        //hand1 = hardwareMap.servo.get("hand1");
+
+        core = hardwareMap.deviceInterfaceModule.get("core");
+
+        // touch sensor init
+        button = hardwareMap.touchSensor.get("button_sensor");
+
+
+
 
 
 
@@ -65,8 +77,13 @@ public class MattsAmazingOpmode extends OpMode
 
         //This sets the drive power of both motors to the first gamepads joysticks.
         v_motor_left_drive.setPower (scale_motor_power(gamepad1.left_stick_y));
-        v_motor_right_drive.setPower (scale_motor_power(-gamepad1.right_stick_y));
-        hand1.setPosition(Range.clip (gamepad2.left_stick_y, Servo.MIN_POSITION, Servo.MAX_POSITION));
+        v_motor_right_drive.setPower(scale_motor_power(-gamepad1.right_stick_y));
+
+        //hand1.setPosition(Range.clip (gamepad2.left_stick_y, Servo.MIN_POSITION, Servo.MAX_POSITION));
+        if(button.isPressed()) {
+            //hand1.setPosition(Range.clip(hand1.getPosition () + 0.05, Servo.MIN_POSITION, Servo.MAX_POSITION));
+            v_motor_right_drive.setPower(1.00);
+        }
 
 
 

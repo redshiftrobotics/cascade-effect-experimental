@@ -272,7 +272,19 @@ public class FtcRobotControllerActivity extends Activity {
     mPreview = new CameraPreview(this, mCamera);
     FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
     preview.addView(mPreview);
-    mCamera.takePicture(null, null, mPicture);
+
+    Button captureButton = (Button) findViewById(R.id.capture);
+    captureButton.setOnClickListener(
+            new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                mCamera.takePicture(null, null, mPicture);
+
+              }
+            }
+    );
+
+    //mCamera.takePicture(null, null, mPicture);
 
 
 

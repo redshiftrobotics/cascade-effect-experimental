@@ -10,7 +10,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
+import com.qualcomm.ftcrobotcontroller.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,18 +38,9 @@ public class CameraActivity extends Activity {
 //        mPreview = new CameraPreview(this, mCamera);
 //        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 //        preview.addView(mPreview);
-////        mCamera.takePicture();
+//        mCamera.takePicture(null, null, mPicture);
 //
-//        Button captureButton = (Button) findViewById(R.id.capture);
-//        captureButton.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        mCamera.takePicture(null, null, mPicture);
-//
-//                    }
-//                }
-//        );
+
 
     }
 
